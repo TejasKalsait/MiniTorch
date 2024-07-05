@@ -21,10 +21,33 @@ new_weight = old_weight - (learning rate * derivation)
 1) __repr__ -> returns a string representation of the object.
 
 2) __add__ -> returns a new object which defines addition operation.
-
 c = a + b
 then object a's __add__ is only called with `self` as a and `other` as b
 
+3) __mul__ -> returns a new object which defines multiplication operation.
+c = a * b
+then object a's __mul__ is only called with `self` as a and `other` as b
+
+4) __rmul__ -> is called when a mul for self is not found. For example, if `c = 2 * Value(2.9)`
+2 being an int cannot call __mul__. There the reverse __mul__ will be called on second item where self = second item (Value) and other = first item
+
+5) __truediv__ -> Function for `/` operation
+with self and other
+
+6) __floordiv__ -> Function for `//` operation
+with self and other
+
+- There exists reverse for both. __rtruediv__ and __rfloordiv__.
+
+7) __sub__ -> Function to perform subtraction operation
+
+8) __neg__ -> Function to perform the negate operation
+
+9) __call__ -> This function is called when a object which is initialized (init already done) is called again.
+Example:
+x = [2.0, 3.0]      # Sample inputs
+n = Neuron(2)       # Initialize a Neuron with 2 inputs
+`n(x)` will call `__call__` function with self as n and other as x
 
 ## Value object parameters
 
@@ -54,5 +77,20 @@ Therefore a plus just allows the gradients to pass locally
 4) Tanh
 if o = tanh(n), then derivative of o wrt n is 1 - o**2
 
-## Neuron
+## Potential Bug
 
+- The derivatives are basically rates of change.
+If c = a + b and d = a * b the derivatives of a and b not just affect c but also d
+
+- while backpropogation if I only put self.grad for `a` as whatever comes from `c path` just pass along. and then overwrite it with doing backprop from `d path`, the gradients are only for the d-path since I overwrote it.
+
+- Therefore, gradients should be accumulated. `+=` than `=`.
+
+- Doing this, one should remember to reset the gradients to zero everytime we run one step of backprop otherwise gradients will become very large.
+
+# Backward function
+
+- Every Value object (node) has a backward function to execute that will propogate the derivatives to it's children.
+- While doing forward pass, we keep track of children and how to populate using which math operation performed that forward pass.
+- The `_backward` attribute store which _backward method to call. While forward pass, we store this information as well.
+- Finally while doing backprop, all these methods are called in topological ordering filling all the gradients.
