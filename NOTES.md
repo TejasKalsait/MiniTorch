@@ -88,9 +88,44 @@ If c = a + b and d = a * b the derivatives of a and b not just affect c but also
 
 - Doing this, one should remember to reset the gradients to zero everytime we run one step of backprop otherwise gradients will become very large.
 
-# Backward function
+## Backward function
 
 - Every Value object (node) has a backward function to execute that will propogate the derivatives to it's children.
 - While doing forward pass, we keep track of children and how to populate using which math operation performed that forward pass.
 - The `_backward` attribute store which _backward method to call. While forward pass, we store this information as well.
 - Finally while doing backprop, all these methods are called in topological ordering filling all the gradients.
+
+
+## Neural Network Architecture
+
+1) Class Neuron!!
+- Defines what a single neuron does.
+- Takes `nin` inputs.
+- generates `nin` random weights
+- And a random bias weight
+- calculates `w*x + b` in the call function
+- applies activation function
+- Returns the activation
+
+2) Class Layer!!
+- Defines how many neurons in each layer
+- calls the `__call__` function from each neuron
+- And returns list of activations from all neurons in each layer
+
+3) MLP!!
+- Defines the entire Network
+- Takes `nins` and `nouts` which denotes number of inputs and list of neurons in each layer
+- outputs and final layer feedforward
+- Initializes every layer based on `nouts` list
+- In the call function, Input passes through every layer and becomes and new input for next layer until reaching the end. This is feedforward.
+
+All these have parameters definitions that return list of concatenated w and b
+
+## Training loop
+
+- Before we train we have input data `xs` output labels `ys` and `n` which is MLP network object
+- We do a forward pass by passing x into n using `n(x)` one by one and storing `ypred`
+- Set all parameter gradients to zero
+- Backward is just .backward()
+- Update weights of all parameters
+- Stats to show
